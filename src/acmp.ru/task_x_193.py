@@ -1,7 +1,7 @@
 fin = open('input.txt')
 
 n, m, k = map(int, fin.readline().split())
-d = [0] * (k + 1)
+d = {}
 
 for i in range(n):
 	a = list(map(int, fin.readline().split()))
@@ -10,7 +10,7 @@ for i in range(n):
 		if a[j] == 0:
 			continue
 
-		if d[a[j]] == 0:
+		if d.get(a[j]) == None:
 			d[a[j]] = [i, j, i, j]
 			continue
 
@@ -20,13 +20,13 @@ for i in range(n):
 		c[2] = min(c[2], i)
 		c[3] = max(c[3], j)
 
-for i in range(1, k + 1):
+for i in sorted(d.keys()):
 	c = d[i]
 	c[0] = n - (c[0] + 1)
 	c[1] = c[1]
 	c[2] = n - c[2]
 	c[3] = c[3] + 1
 
-	print(c[1], c[0], c[3], c[2])
+	print('%i:' % i, c[1], c[0], c[3], c[2])
 
 fin.close()
