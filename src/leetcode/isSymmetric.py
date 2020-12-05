@@ -10,10 +10,11 @@ class Solution:
             return True
         
         leveled_arrays = self.get_leveled_array(root)
-        
+
         for array in leveled_arrays:
             i, j = 0, len(array) - 1
-            while i != j:
+
+            while i < j:
                 if array[i] != array[j]:
                     return False
                 
@@ -29,16 +30,16 @@ class Solution:
 
         while qi < len(q):
             cr, depth = q[qi]
-
+            v = cr.val if cr != None else None
+            
+            if len(r) < depth:
+                r.append([v])
+            else:
+                r[depth - 1].append(v)
+                
             if cr == None:
-                r.append(None)
                 qi += 1
                 continue
-
-            if len(r) < depth:
-                r.append([cr.val])
-            else:
-                r[depth].append(cr.val)
             
             if cr.left != None:
                 q.append([cr.left, depth + 1])
@@ -48,7 +49,7 @@ class Solution:
             if cr.right != None:
                 q.append([cr.right, depth + 1])
             else:
-                q.append([cr.right, depth + 1])
+                q.append([None, depth + 1])
                 
             qi += 1
                 
