@@ -16,10 +16,20 @@ class Solution:
 
             l = go_down(node.left, node)
             r = go_down(node.right, node)
-            print(l.val if l != None else None, r.val if r != None else None, parent.val if parent != None else None)
             
-            if l != None and l == r:
+            if l == r and l == node:
                 return l
+            
+            if l == node or r == node:
+                return parent
+            
+            if l != None:                    
+                return l
+            
+            if r != None:
+                return r
+            
+            return None
             
         lwa = go_down(root, None)
         return lwa
