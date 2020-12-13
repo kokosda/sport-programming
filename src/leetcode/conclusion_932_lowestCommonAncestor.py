@@ -10,12 +10,15 @@ class Solution:
         def go_down(node, parent):
             if node == None:
                 return None
-            
-            if node.val == p.val or node.val == q.val:
-                return parent
 
             l = go_down(node.left, node)
             r = go_down(node.right, node)
+            
+            if node.val == p.val or node.val == q.val:
+                if node == l or node == r:
+                    return node
+
+                return parent
             
             if l == r and l == node:
                 return l
