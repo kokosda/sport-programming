@@ -14,16 +14,37 @@ class Solution:
         if not node:
             return root
         
+        if node == root:
+            inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
+            
+            if inorder_successor:
+                if inorder_successor == root.right:
+                    root_left = root.left
+                    root = inorder_successor
+                    root.left = root_left
+                else:
+                    root.val = inorder_successor.val
+
+                    if inorder_successor.right:
+                        inorder_successor_parent.left = inorder_successor.right
+                    else:
+                        inorder_successor_parent.left = None
+            else:
+                root = root.left
+
+            return root
+        
         if not node.left and not node.right:
             self.replace_in_parent(node, node_parent, None)
-        elif node.left and not node.right:
-            self.replace_in_parent(node, node_parent, node.left)
-        elif node.right and not node.left:
-            self.replace_in_parent(node, node_parent, node.right)
         else:
-            inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
-            self.swap_nodes(node, node_parent, inorder_successor, inorder_successor_parent)
-            self.replace_in_parent(node, inorder_successor_parent, None)
+            while True:
+                inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
+                self.swap_nodes(node, node_parent, inorder_successor, inorder_successor_parent)
+                
+                if inorder_successor == node.right:
+                    break
+
+                node = inorder_successor
         
         return root
         
@@ -42,6 +63,9 @@ class Solution:
         return [node, parent]
     
     def get_inorder_successor(self, root: TreeNode, parent: TreeNode) -> TreeNode:
+        if not root:
+            return [root, parent]
+        
         node = root
         
         while node.left:
@@ -51,15 +75,11 @@ class Solution:
         return [node, parent]
     
     def swap_nodes(self, source: TreeNode, sourceParent: TreeNode, target: TreeNode, targetParent: TreeNode):
-        if sourceParent:
-            self.replace_in_parent(source, sourceParent, target)
-        else:
-            source.val = target.val
-        
+        self.replace_in_parent(source, sourceParent, target)        
         target.left = source.left
         
         if source != targetParent:
-            self.replace_in_parent(target, targetParent, None)
+            self.replace_in_parent(target, targetParent, target.right)
             target.right = source.right
     
     def replace_in_parent(self, node: TreeNode, parent: TreeNode, next_node: TreeNode):
@@ -70,4 +90,9 @@ class Solution:
 
 """
 [20,9,30,6,11,25,40,4,7,10,null,21,27,33, 42,1,5,null,null,null,null,null,24,26,29]
+
+[2,0,33,null,1,25,40,null,null,11,31,34,45,10,18,29,32,null,36,43,46,4,null,12,24,26,30,null,null,35,39,42,44,null,48,3,9,null,14,22,null,null,27,null,null,null,null,38,null,41] 
+33 -- input
+[2,0,33,null,1,25,40,null,null,11,31,34,45,10,18,29,32,null,36,43,46,4,null,12,24,26,30,null,null,35,39,42,44,null,48,3,9,null,14,22,null,null,27,null,null,null,null,38,null,41] -- wrong
+[2,0,34,null,1,25,40,null,null,11,31,35,45,10,18,29,32,null,36,43,46,4,null,12,24,26,30,null,null,null,39,42,44,null,48,3,9,null,14,22,null,null,27,null,null,38,null,41] -- right
 """
