@@ -15,15 +15,15 @@ class Solution:
             return root
         
         if not node.left and not node.right:
-            self.replace_parent_successor_with_next_node(node, node_parent, None)
+            self.replace_in_parent(node, node_parent, None)
         elif node.left and not node.right:
-            self.replace_parent_successor_with_next_node(node, node_parent, node.left)
+            self.replace_in_parent(node, node_parent, node.left)
         elif node.right and not node.left:
-            self.replace_parent_successor_with_next_node(node, node_parent, node.right)
+            self.replace_in_parent(node, node_parent, node.right)
         else:
             inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
             self.swap_nodes(node, node_parent, inorder_successor, inorder_successor_parent)
-            self.replace_parent_successor_with_next_node(node, inorder_successor_parent, None)
+            self.replace_in_parent(node, inorder_successor_parent, None)
         
         return root
         
@@ -51,15 +51,23 @@ class Solution:
         return [node, parent]
     
     def swap_nodes(self, source: TreeNode, sourceParent: TreeNode, target: TreeNode, targetParent: TreeNode):
-        self.replace_parent_successor_with_next_node(source, sourceParent, target)
-        self.replace_parent_successor_with_next_node(target, targetParent, source)
+        if sourceParent:
+            self.replace_in_parent(source, sourceParent, target)
+        else:
+            source.val = target.val
         
-        tmp_target_left, tmp_target_right = target.left, target.right
-        target.left, target.right = source.left, source.right
-        source.left, source.right = tmp_target_left, tmp_target_right
+        target.left = source.left
+        
+        if source != targetParent:
+            self.replace_in_parent(target, targetParent, None)
+            target.right = source.right
     
-    def replace_parent_successor_with_next_node(self, node: TreeNode, parent: TreeNode, next_node: TreeNode):
+    def replace_in_parent(self, node: TreeNode, parent: TreeNode, next_node: TreeNode):
         if parent.left == node:
             parent.left = next_node
         else:
             parent.right = next_node
+
+"""
+[20,9,30,6,11,25,40,4,7,10,null,21,27,33, 42,1,5,null,null,null,null,null,24,26,29]
+"""
