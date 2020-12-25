@@ -35,16 +35,17 @@ class Solution:
             return root
         
         if not node.left and not node.right:
-            self.replace_in_parent(node, node_parent, None)
+            self.replace_child_in_parent(node_parent, node, None)
         else:
             while True:
                 inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
                 self.swap_nodes(node, node_parent, inorder_successor, inorder_successor_parent)
-                
-                if inorder_successor == node.right:
-                    break
-
                 node = inorder_successor
+                
+                if not inorder_successor.right:
+                    break
+                
+            self.replace_child_in_parent(inorder_successor_parent, inorder_successor, None)
         
         return root
         
@@ -75,18 +76,13 @@ class Solution:
         return [node, parent]
     
     def swap_nodes(self, source: TreeNode, sourceParent: TreeNode, target: TreeNode, targetParent: TreeNode):
-        self.replace_in_parent(source, sourceParent, target)        
-        target.left = source.left
-        
-        if source != targetParent:
-            self.replace_in_parent(target, targetParent, target.right)
-            target.right = source.right
+        source.val, target.val = target.val, source.val
     
-    def replace_in_parent(self, node: TreeNode, parent: TreeNode, next_node: TreeNode):
-        if parent.left == node:
-            parent.left = next_node
+    def replace_child_in_parent(self, parent: TreeNode, source: TreeNode, target: TreeNode):
+        if parent.left == source:
+            parent.left = target
         else:
-            parent.right = next_node
+            parent.right = target
 
 """
 [20,9,30,6,11,25,40,4,7,10,null,21,27,33, 42,1,5,null,null,null,null,null,24,26,29]
