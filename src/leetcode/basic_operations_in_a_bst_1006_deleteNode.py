@@ -12,40 +12,40 @@ class Solution:
         node, node_parent = self.find_node(root, key)
         
         if not node:
-            return root
+            return root            
         
-        if node == root:
-            inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
+        if not self.has_children(node):
+            if node == root:
+                return None
             
-            if inorder_successor:
-                if inorder_successor == root.right:
-                    root_left = root.left
-                    root = inorder_successor
-                    root.left = root_left
-                else:
-                    root.val = inorder_successor.val
-
-                    if inorder_successor.right:
-                        inorder_successor_parent.left = inorder_successor.right
-                    else:
-                        inorder_successor_parent.left = None
-            else:
-                root = root.left
-
-            return root
-        
-        if not node.left and not node.right:
-            self.replace_child_in_parent(node_parent, node, None)
+            self.delete_child(node_parent, node)
+        elif not node.right and not self.has_children(node.left):
+            self.swap_nodes(node, node.left)
+            self.delete_child(node, node.left)
+        elif not node.left and not self.has_children(node.right):
+            self.swap_nodes(node, node.right)
+            self.delete_child(node, node.right)
         else:
             while True:
-                inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
-                self.swap_nodes(node, node_parent, inorder_successor, inorder_successor_parent)
+                inorder_successor, inorder_successor_parent = None, None
+                
+                if node.right:
+                    inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
+                else:
+                    if not self.has_children(node):
+                        break
+
+                    node_parent.right = node.left
+                    return root
+                    
+                self.swap_nodes(node, inorder_successor)
                 node = inorder_successor
+                node_parent = inorder_successor_parent
                 
                 if not inorder_successor.right:
                     break
                 
-            self.replace_child_in_parent(inorder_successor_parent, inorder_successor, None)
+            self.delete_child(node_parent, node)
         
         return root
         
@@ -75,14 +75,20 @@ class Solution:
                 
         return [node, parent]
     
-    def swap_nodes(self, source: TreeNode, sourceParent: TreeNode, target: TreeNode, targetParent: TreeNode):
+    def swap_nodes(self, source: TreeNode, target: TreeNode):
         source.val, target.val = target.val, source.val
+        
+    def has_children(self, node: TreeNode) -> bool:
+        if not node:
+            return False
+        
+        return node.left or node.right
     
-    def replace_child_in_parent(self, parent: TreeNode, source: TreeNode, target: TreeNode):
+    def delete_child(self, parent: TreeNode, source: TreeNode):
         if parent.left == source:
-            parent.left = target
+            parent.left = None
         else:
-            parent.right = target
+            parent.right = None
 
 """
 [20,9,30,6,11,25,40,4,7,10,null,21,27,33, 42,1,5,null,null,null,null,null,24,26,29]
@@ -91,4 +97,9 @@ class Solution:
 33 -- input
 [2,0,33,null,1,25,40,null,null,11,31,34,45,10,18,29,32,null,36,43,46,4,null,12,24,26,30,null,null,35,39,42,44,null,48,3,9,null,14,22,null,null,27,null,null,null,null,38,null,41] -- wrong
 [2,0,34,null,1,25,40,null,null,11,31,35,45,10,18,29,32,null,36,43,46,4,null,12,24,26,30,null,null,null,39,42,44,null,48,3,9,null,14,22,null,null,27,null,null,38,null,41] -- right
+
+[41,12,48,5,14,42,49,1,10,13,16,null,47,null,null,0,3,9,11,null,null,15,35,44,null,null,null,2,4,7,null,null,null,null,null,27,39,43,46,null,null,null,null,6,8,19,28,37,40,null,null,45,null,null,null,null,null,18,25,null,31,36,38,null,null,null,null,17,null,23,26,29,32,null,null,null,null,null,null,22,24,null,null,null,30,null,33,21,null,null,null,null,null,null,34,20]
+22 -- input
+
+[41,12,48,5,14,42,49,1,10,13,16,null,47,null,null,0,3,9,11,null,null,15,35,44,null,null,null,2,4,7,null,null,null,null,null,27,39,43,46,null,null,null,null,6,8,19,28,37,40,null,null,45,null,null,null,null,null,18,25,null,31,36,38,null,null,null,null,17,null,23,26,29,32,null,null,null,null,null,null,21,24,null,null,null,30,null,33,20,null,null,null,null,null,null,34] -- right
 """
