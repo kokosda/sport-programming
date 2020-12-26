@@ -19,25 +19,14 @@ class Solution:
                 return None
             
             self.delete_child(node_parent, node)
-        elif not node.right and not self.has_children(node.left):
-            self.swap_nodes(node, node.left)
-            self.delete_child(node, node.left)
-        elif not node.left and not self.has_children(node.right):
-            self.swap_nodes(node, node.right)
-            self.delete_child(node, node.right)
+        elif not node.right and node.left:
+            if node == root:
+                return node.left
+            
+            self.set_child(node_parent, node, node.left)
         else:
             while True:
-                inorder_successor, inorder_successor_parent = None, None
-                
-                if node.right:
-                    inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
-                else:
-                    if not self.has_children(node):
-                        break
-
-                    node_parent.right = node.left
-                    return root
-                    
+                inorder_successor, inorder_successor_parent = self.get_inorder_successor(node.right, node)
                 self.swap_nodes(node, inorder_successor)
                 node = inorder_successor
                 node_parent = inorder_successor_parent
@@ -89,17 +78,9 @@ class Solution:
             parent.left = None
         else:
             parent.right = None
-
-"""
-[20,9,30,6,11,25,40,4,7,10,null,21,27,33, 42,1,5,null,null,null,null,null,24,26,29]
-
-[2,0,33,null,1,25,40,null,null,11,31,34,45,10,18,29,32,null,36,43,46,4,null,12,24,26,30,null,null,35,39,42,44,null,48,3,9,null,14,22,null,null,27,null,null,null,null,38,null,41] 
-33 -- input
-[2,0,33,null,1,25,40,null,null,11,31,34,45,10,18,29,32,null,36,43,46,4,null,12,24,26,30,null,null,35,39,42,44,null,48,3,9,null,14,22,null,null,27,null,null,null,null,38,null,41] -- wrong
-[2,0,34,null,1,25,40,null,null,11,31,35,45,10,18,29,32,null,36,43,46,4,null,12,24,26,30,null,null,null,39,42,44,null,48,3,9,null,14,22,null,null,27,null,null,38,null,41] -- right
-
-[41,12,48,5,14,42,49,1,10,13,16,null,47,null,null,0,3,9,11,null,null,15,35,44,null,null,null,2,4,7,null,null,null,null,null,27,39,43,46,null,null,null,null,6,8,19,28,37,40,null,null,45,null,null,null,null,null,18,25,null,31,36,38,null,null,null,null,17,null,23,26,29,32,null,null,null,null,null,null,22,24,null,null,null,30,null,33,21,null,null,null,null,null,null,34,20]
-22 -- input
-
-[41,12,48,5,14,42,49,1,10,13,16,null,47,null,null,0,3,9,11,null,null,15,35,44,null,null,null,2,4,7,null,null,null,null,null,27,39,43,46,null,null,null,null,6,8,19,28,37,40,null,null,45,null,null,null,null,null,18,25,null,31,36,38,null,null,null,null,17,null,23,26,29,32,null,null,null,null,null,null,21,24,null,null,null,30,null,33,20,null,null,null,null,null,null,34] -- right
-"""
+            
+    def set_child(self, parent: TreeNode, source: TreeNode, node: TreeNode):
+        if parent.left == source:
+            parent.left = node
+        else:
+            parent.right = node
