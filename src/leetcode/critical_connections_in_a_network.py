@@ -1,23 +1,35 @@
+from typing import List
+
 class Solution:
     def criticalConnections(self, n: int, connections: List[List[int]]) -> List[List[int]]:
-        graph = self.__convert_to_graph(n, connections)
-        used = [0] * n
-        v0 = 0
-        queue, qi = [v0], 0
+        ht = self.__convert_to_hash_table(n, connections)
+        res = []
         
         for edge in connections:
+            used = [0] * n
+            used[0] = 1
+            v0, v = 0, None
+            queue, qi = [v0], 0
+            
             while qi < len(queue):
                 v = queue[qi]
 
-                for u in graph[v]:
-                    if used[u] == 0 and [v,u] != edge and [u,v] != edge:
-                        queue.append(u)
-                        used[u] = 1
+                for u in ht[v]:
+                    if used[u] == 0:
+                        if not self.__is_vu_in_edge(v, u, edge):
+                            queue.append(u)
+                            used[u] = 1
                     
                 qi += 1
+            
+            unused = list(filter(lambda x: (x == 0), used))
+            
+            if len(unused) > 0:
+                res.append(edge)
+
+        return res
         
-        
-    def __convert_to_graph(self, n: int, connenctions: List[List[int]]):
+    def __convert_to_hash_table(self, n: int, connections: List[List[int]]):
         res = dict()
         
         for c in connections:
@@ -30,11 +42,20 @@ class Solution:
             res[c[1]].add(c[0])
 
         return res
+    
+    def __is_vu_in_edge(self, v: int, u: int, edge: List[int]) -> bool:
+        return (edge[0] == v or edge[1] == v) and (edge[0] == u or edge[1] == u)
+    
+s = Solution()
+s.criticalConnections(1, [])
 """
-[
-    [0,1],
-    [1,2],
-    [2,0],
-    [1,3]
-]
+{0: {1,2}}
+{1: {0,2,3}}
+{2: {0,1,5}}
+{3: {1,4}}
+{4: {3}}
+{5: {2}}
+
+6
+[[0,1],[0,2],[1,2],[1,3],[2,5],[3,4]]
 """
