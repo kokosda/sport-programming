@@ -6,9 +6,9 @@ class MyCircularDeque:
         """
         self.__size = 0
         self.__capacity = k
-        self.__container = [None] * k * 2
-        self.__front_ind = k - 1
-        self.__back_ind = k - 1
+        self.__container = [None] * self.__capacity * 2
+        self.__front_ind = self.__capacity
+        self.__back_ind = self.__capacity
 
     def insertFront(self, value: int) -> bool:
         """
@@ -17,9 +17,12 @@ class MyCircularDeque:
         if self.isFull():
             return False
         
-        self.__front_ind -= 1
-        self.__front_container[self.__front_ind] = value
+        if self.__container[self.__front_ind]:
+            self.__front_ind -= 1
+        
+        self.__container[self.__front_ind] = value
         self.__size += 1
+        print(self.__container, self.__front_ind, 'fi')
         return True
 
     def insertLast(self, value: int) -> bool:
@@ -29,39 +32,50 @@ class MyCircularDeque:
         if self.isFull():
             return False
         
-        self.__back_ind += 1
+        if self.__container[self.__back_ind]:
+            self.__back_ind += 1
+        
         self.__container[self.__back_ind] = value
         self.__size += 1
+        print(self.__container, self.__back_ind, 'bi')
         return True
 
     def deleteFront(self) -> bool:
         """
         Deletes an item from the front of Deque. Return true if the operation is successful.
         """
-        if not self.isEmpty():
+        if self.isEmpty():
             return False
 
         self.__container[self.__front_ind] = None
-        self.__front_ind += 1
         self.__size -= 1
+        
+        if not self.isEmpty():
+            self.__front_ind += 1
+        
+        self.__update_indices()
+        print(self.__container, self.__front_ind, 'fi')
         return True
 
     def deleteLast(self) -> bool:
         """
         Deletes an item from the rear of Deque. Return true if the operation is successful.
         """
-        if not self.isEmpty():
+        if self.isEmpty():
             return False
         
-        self.__back_container[self.__back_ind] = None
+        self.__container[self.__back_ind] = None
         self.__back_ind -= 1
         self.__size -= 1
+        self.__update_indices()
+        print(self.__container, self.__back_ind, 'bi')
+        return True
 
     def getFront(self) -> int:
         """
         Get the front item from the deque.
         """
-        if not self.isEmpty():
+        if self.isEmpty():
             return -1
         
         return self.__container[self.__front_ind]
@@ -70,7 +84,7 @@ class MyCircularDeque:
         """
         Get the last item from the deque.
         """
-        if not self.isEmpty():
+        if self.isEmpty():
             return -1
         
         return self.__container[self.__back_ind]
@@ -85,8 +99,14 @@ class MyCircularDeque:
         """
         Checks whether the circular deque is full or not.
         """
-        return self.__size < self.__capacity
-
+        return self.__size == self.__capacity
+    
+    def __update_indices(self):
+        if self.__back_ind != self.__front_ind:
+            return
+        
+        #self.__back_ind = self.__capacity
+        #self.__front_ind = self.__capacity
 
 # Your MyCircularDeque object will be instantiated and called as such:
 # obj = MyCircularDeque(k)
