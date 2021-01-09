@@ -6,16 +6,6 @@
 #         self.right = right
 class Solution:
     def maxPathSum(self, root: TreeNode) -> int:
-        dp = dict()
-        """
-        {
-            {root} : 1,
-            {left} : 2,
-            {right} : 3
-            ...
-        }
-        """
-
         def dfs(node: TreeNode, max_s: int) -> int:
             if not node:
                 return max_s
@@ -24,13 +14,13 @@ class Solution:
                 return max(node.val, max_s)
             
             max_s = max(dfs(node.left, max_s), dfs(node.right, max_s))
-            left_val = node.left.val if node.left else 0
-            right_val = node.right.val if node.right else 0
+            left_val = node.left.val if node.left else min(max_s, 0)
+            right_val = node.right.val if node.right else min(max_s, 0)
             max_s = max(max_s, node.val + left_val + right_val, node.val, left_val, right_val)
             node.val = max(node.val + left_val, node.val + right_val)
             print(f'n={node.val} l={left_val}, r={right_val}')
             
-            return max_s
+            return max(node.val, max_s)
                 
         res = dfs(root, root.val)
         return res
@@ -46,4 +36,11 @@ dynamic transition funcs:
     4) node_i.val
 order of calculation: dfs
 answer to the original problem: 
+
+[1,2,3]
+[-10,9,20,null,null,15,7]
+[-10,90,20,null,null,15,7]
+[-1,-2]
+[1,-2,3]
+[-1,5,null,4,null,null,2,-4]
 """
