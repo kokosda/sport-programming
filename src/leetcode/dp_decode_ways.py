@@ -1,28 +1,29 @@
 class Solution:
     def numDecodings(self, s: str) -> int:
-        if s == '0':
+        if s[0] == '0':
             return 0
         if len(s) == 1:
             return 1
-            
-        dp = [0] * (len(s) + 1)
-        
-        for i in range(len(s) - 1, 0, -1):
-            pair_i = s[i - 1]
-            pair_j = s[i]
-            
-            if pair_i == '0':
-                dp[i] = dp[i + 1]
-            if pair_i > '0' and pair_i <= '2':
-                if pair_j == '0':
-                    dp[i] = 1 + dp[i + 1]
-                else:
-                    dp[i] = 3 + dp[i + 1]
-            else:
-                dp[i] = 2 + dp[i + 1]
-                
-        print(dp)
-        return dp[0]
+
+        dp = [1] * (len(s) + 2)
+        i = len(s) - 1
+
+        while i > 0:
+            pair = [s[i - 1], s[i]]
+
+            if (pair[0] == '0' or pair[0] > '2') and pair[1] == '0':
+                return 0
+
+            if i + 1 >= len(s) or s[i + 1] > '0':
+                if pair[0] == '1' and pair[1] != '0':
+                    dp[i] = dp[i + 1] + dp[i + 2]
+                elif pair[0] == '2' and pair[1] > '0' and pair[1] <= '6':
+                    dp[i] = dp[i + 1] + dp[i + 2]
+
+            dp[i] = max(dp[i + 1], dp[i])    
+            i -= 1
+
+        return dp[1]
     
 """
 dynamic state: letter A-Z
@@ -44,4 +45,30 @@ Z-26
 
 "1720101" - 17, 20, 10, 1
 "1720101" - 1, 7, 20, 10, 1
+
+01[] - 1 - impossible
+10[1] - 1
+01[01] - 1 - impossible
+20[101] - 1
+72[0101] - 1 - impossible
+17[20101] - 2 [1,7 or 17]
+
+1111[1] - 1
+111[11] - 2
+11[11]1 - 3 (2+1)
+1[11]11 - 5 (3+2)
+[11]111 - 8 (5+3)
+
+
+"2010"
+"01"
+"00"
+"10"
+"30"
+"2003"
+"1720101"
+"226"
+"2101"
+
+
 """
