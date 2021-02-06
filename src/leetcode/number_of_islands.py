@@ -4,32 +4,41 @@ class Solution:
     def numIslands(self, grid: List[List[str]]) -> int:
         m = len(grid)
         n = len(grid[0])
-        
-        def dfs(grid, i, j, is_one):
-            if grid[i][j] == '1':
-                if is_one:
-                    grid[i][j] = '*'
-                else:
-                    is_one = True
-            else:
-                is_one = False
-                
-            if i + 1 < m:
-                dfs(grid, i + 1, j, is_one)
-                
-            if j + 1 < n:
-                dfs(grid, i, j + 1, is_one)
 
-            if i + 1 < m and j + 1 < n:
-                is_one_0 = grid[i + 1][j] == '*' or grid[i][j + 1] == '*'
-                dfs(grid, i + 1, j + 1, is_one_0)
-            
-        dfs(grid, 0, 0, False)
+        def mark_vertices(grid: List[List[str]], i: int, j: int, is_origin: bool):
+            if grid[i][j] == '0':
+                return
+
+            if is_origin:
+                grid[i][j] = '-1'
+
+            if i + 1 < m and grid[i + 1][j] == '1':
+                grid[i + 1][j] = '*'
+                mark_vertices(grid, i + 1, j, False)
+
+            if i > 0 and grid[i - 1][j] == '1':
+                grid[i - 1][j] = '*'
+                mark_vertices(grid, i - 1, j, False)
+
+            if j + 1 < n and grid[i][j + 1] == '1':
+                grid[i][j + 1] = '*'
+                mark_vertices(grid, i, j + 1, False)
+
+            if j > 0 and grid[i][j - 1] == '1':
+                grid[i][j - 1] = '*'
+                mark_vertices(grid, i, j - 1, False)
+
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == '*':
+                    continue
+
+                mark_vertices(grid, i, j, True)
         
         res = 0
 
         for row in grid:
-            res += row.count('1')
+            res += row.count('-1')
 
         return res
 
