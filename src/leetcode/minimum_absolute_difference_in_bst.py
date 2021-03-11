@@ -24,13 +24,8 @@ class Solution:
             
         if root.right:
             diff2 = dfs(root.right, root, root)
-            
-        if diff1 and diff2:
-            return min(diff1, diff2)
-        elif diff1:
-            return diff1
-        else:
-            return diff2
+        
+        return min(diff1, diff2) if diff1 and diff2 else diff1 or diff2
     
 """
 [5,1,18,null,3,16,29,null,null,7]
