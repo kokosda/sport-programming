@@ -1,5 +1,31 @@
 class Solution:
-	#very bad approach, needs to be reconsidered.
+    def maximumProduct(self, nums: List[int]) -> int:
+        minus = nums[0:2]
+        biggest = nums[0:3]
+        
+        for idx in range(3, len(nums)):
+            i = nums[idx]
+            
+            if i < 0:
+                if i < minus[0]:
+                    minus[1] = minus[0]
+                    minus[0] = i
+                elif i < minus[1]:
+                    minus[1] = i
+                    
+            if i > biggest[0]:         
+                biggest[2] = biggest[1]
+                biggest[1] = biggest[0]
+                biggest[0] = i
+            elif i > biggest[1]:
+                biggest[2] = biggest[1]
+                biggest[1] = i
+            elif i > biggest[2]:
+                biggest[2] = i
+        
+        res = max(minus[0] * minus[1] * biggest[2], biggest[0] * biggest[1] * biggest[2])
+        return res
+    
     def maximumProduct(self, nums: List[int]) -> int:
         if len(nums) == 3:
             return nums[0] * nums[1] * nums[2]
