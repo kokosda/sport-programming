@@ -7,7 +7,7 @@ class Solution:
         j = 0
         prev_i = 0
         
-        while i < len(name):
+        while i < len(name) and j < len(typed):
             if name[i] == typed[j]:
                 prev_i = i
                 i += 1
@@ -18,7 +18,7 @@ class Solution:
                 while j < len(typed) and name[prev_i] == typed[j]:
                     j += 1
                 else:
-                    if prev_j is j or name[i] != typed[j]:
+                    if prev_j is j or (j < len(typed) and name[i] != typed[j]):
                         return False
                     
         while j < len(typed):
@@ -30,17 +30,24 @@ class Solution:
 """
 n:aalex
       ^
-t:aaaleex
-       ^
+t:aaaleexxyz
+        ^
      
 saeed
    ^
 ssaaedd
      ^
 
+"pyplrz"
+      ^
+"ppyypllr"
+         ^
+
 cn: 1
 ct: 2
 
+"pyplrz"
+"ppyypllr"
 "rick"
 "kric"
 "alex"
