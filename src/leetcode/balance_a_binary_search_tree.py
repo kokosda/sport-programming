@@ -19,30 +19,25 @@ class Solution:
             
         dfs(root)
         
-        def build_tree(node: TreeNode, s: int, e: int) -> TreeNode:
+        def build_tree(node: TreeNode, s: int, e: int) -> None:
             if s == e:
                 return
-
+            
             mid = (s + e) // 2
             
-            if node is None:
-                balanced_root = TreeNode(arr[mid])                
-                build_tree(balanced_root, s, mid)
-                build_tree(balanced_root, mid + 1, e)
-                return balanced_root
+            if arr[mid] < node.val:
+                node.left = TreeNode(arr[mid])
+                build_tree(node.left, s, mid)
+                build_tree(node.left, mid + 1, e)
             else:
-                if arr[mid] < node.val:
-                    node.left = TreeNode(arr[mid])
-                    build_tree(node.left, s, mid)
-                    build_tree(node.left, mid + 1, e)
-                    return node.left
-                else:
-                    node.right = TreeNode(arr[mid])
-                    build_tree(node.right, s, mid)
-                    build_tree(node.right, mid + 1, e)
-                    return node.right
-                    
-        res = build_tree(None, 0, len(arr) - 1)
+                node.right = TreeNode(arr[mid])
+                build_tree(node.right, s, mid)
+                build_tree(node.right, mid + 1, e)
+                
+        mid = len(arr) // 2
+        res = TreeNode(arr[mid])
+        build_tree(res, 0, mid)
+        build_tree(res, mid + 1, len(arr))
         return res
         
 """
