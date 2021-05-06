@@ -51,21 +51,26 @@ class Solution:
             i += 1
 
         res = [s for s in res if len(s.list) == last_suggestions_count]
-        res = res + Solution.get_indices_combinations(res)
+        res = res + Solution.get_indices_combinations(res, connectors)
 
         return res
 
-    def get_indices_combinations(suggestions: List[Suggestion]) -> List[Suggestion]:
+    def get_indices_combinations(suggestions: List[Suggestion], connectors: List[int]) -> List[Suggestion]:
         res = []
 
         for suggestion in suggestions:
-            for idx in range(len(suggestion.list)):
-                orig_i = suggestion.list[idx]
-                i = orig_i + 1
+            for suggestion_list_idx in range(len(suggestion.list)):
+                index_in_connectors = suggestion.list[suggestion_list_idx]
+                next_connector_idx = len(connectors)
 
-                while i < len(connectors) and connectors[i] == connectors[orig_i]:
-                    s = Suggestion(suggestion.list)
-                    s.list[idx] = i
+                if suggestion_list_idx + 1 < len(suggestion.list):
+                    next_connector_idx = suggestion.list[suggestion_list_idx + 1]
+
+                i = index_in_connectors + 1
+
+                while i < next_connector_idx and connectors[i] == connectors[index_in_connectors]:
+                    s = Suggestion(suggestion.list) #fix error of impossible Suggestion like [4,4,5] produced from [3,4,5] (connectors: [16,9, 7, 5, 5, 3, 3, 2, 2, 1, 1])
+                    s.list[suggestion_list_idx] = i
                     res.append(s)
                     i += 1
 
@@ -85,10 +90,11 @@ class Solution:
 
         return r
 
-capacity = 40
-connectors = [9, 7, 5, 5, 3, 3, 2, 2, 1, 1]
+capacity = 56
+connectors = [16,9, 7, 5, 5, 3, 3, 2, 2, 1, 1]
 current_new = 15
 suggestions = Solution.get_suggestions(capacity, connectors, current_new)
+print([",".join([str(connectors[i]) for i in s.list]) for s in suggestions])
 print(suggestions)
 
 """
@@ -103,4 +109,7 @@ pos: 0
 freeing_cap_tmp: 13
 suggestion: [0,4,8]
 res: []
+
+[Suggestion([1, 5, 9]), Suggestion([2, 3, 9]), Suggestion([3, 4, 5]), Suggestion([1, 6, 9]), Suggestion([1, 5, 10]), Suggestion([2, 4, 9]), Suggestion([2, 3, 10]), Suggestion([4, 4, 5]), Suggestion([3, 4, 6])]
+[Suggestion([1, 5, 9]), Suggestion([2, 3, 9]), Suggestion([3, 4, 5]), Suggestion([1, 6, 9]), Suggestion([1, 5, 10]), Suggestion([2, 4, 9]), Suggestion([2, 3, 10]), Suggestion([3, 4, 6])]
 """
