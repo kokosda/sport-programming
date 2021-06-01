@@ -7,10 +7,10 @@ class Request:
         self.count = count
 
     def __str__(self) -> str:
-        return f'Request({self.time}, {self.count})'
+        return f'Request(t={self.time}, count={self.count})'
 
     def __repr__(self) -> str:
-        return f'Request({self.time}, {self.count})'
+        return f'Request(t={self.time}, count={self.count})'
 
 def collapse_queue(q: Deque[Request], timestamp: int, duration: int) -> int:
     if len(q) is 0:
@@ -22,8 +22,8 @@ def collapse_queue(q: Deque[Request], timestamp: int, duration: int) -> int:
         q.clear()
         return
 
-    while len(q) is not 0 and q[-1].time - q[0].time > duration:
-        request = q.pop()
+    while len(q) is not 0 and q[0].time + duration < timestamp:
+        request = q.popleft()
         diff = request.count - diff
 
         if len(q) is not 0:
@@ -37,13 +37,13 @@ def is_request_allowed(q: Deque[Request], limit: int) -> bool:
 
 def add_request(q: Deque[Request], timestamp: int) -> None:
     if len(q) is 0:
-        q.appendleft(Request(timestamp, 1))
+        q.append(Request(timestamp, 1))
         return
 
     if q[-1].time == timestamp:
         q[-1].count += 1
     else: 
-        q.appendleft(Request(timestamp, q[-1].count + 1))
+        q.append(Request(timestamp, q[-1].count + 1))
 
 fin = open('input.txt')
 user_limit, service_limit, duration = map(int, fin.readline().split())
@@ -62,7 +62,12 @@ while True:
     collapse_queue(requests_by_service, timestamp, duration)
 
     if not is_request_allowed(requests_by_service, service_limit):
-        print(500, requests_by_service)
+        if requests_by_users.get(user_id) is not None:
+            if not is_request_allowed(requests_by_users[user_id], user_limit):
+                print(timestamp, 400, requests_by_service, requests_by_users)
+                continue
+
+        print(timestamp, 500, requests_by_service, requests_by_users)
         continue
 
     if requests_by_users.get(user_id) is None:
@@ -73,12 +78,12 @@ while True:
     collapse_queue(user_q, timestamp, duration)
 
     if not is_request_allowed(user_q, user_limit):
-        print(400, requests_by_users)
+        print(timestamp, 400, requests_by_service, requests_by_users)
         continue
 
     add_request(user_q, timestamp)
     add_request(requests_by_service, timestamp)
-    print(200, user_q)
+    print(timestamp, 200, requests_by_service, requests_by_users)
 
 fin.close()
 
