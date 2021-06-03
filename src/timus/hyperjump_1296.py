@@ -11,26 +11,16 @@ if m > 0:
         moments[i] = int(input())
         i += 1
 
-    max_sum_idx = 0
-    max_sum = 0
+    res = 0
     cur_sum = moments[0]
-    sums = [0] * m
 
     for i in range(1, m):
         cur_sum += moments[i]
-        sums[i] = cur_sum
 
-        if cur_sum > max_sum:
-            max_sum_idx = i
-            max_sum = cur_sum
-
-    res = max_sum
-
-    for i in range(max_sum_idx):
-        max_sum -= sums[i]
-
-        if max_sum > res:
-            res = max_sum
+        if cur_sum > res:
+            res = cur_sum
+        elif cur_sum < 0:
+            cur_sum = 0
 
 print(res)
 
