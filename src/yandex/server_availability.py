@@ -12,49 +12,45 @@ class Request:
     def __repr__(self) -> str:
         return f'Request(t={self.time}, count={self.count})'
 
-class RequestStats:
-    def __init__(self, timestamp: int) -> None:
-        self.requests = deque(Request(timestamp, 1))
-        self.total_count = 1
+class Stats:
+    def __init__(self) -> None:
+        self.requests = deque()
+        self.total_count = 0
 
-def collapse_queue(q: Deque[Request], timestamp: int, duration: int) -> int:
-    if len(q) is 0:
+    def __repr__(self) -> str:
+        return f'Stats(tc: {self.total_count}, r:{self.requests}'
+
+def collapse_queue(stats: Stats, timestamp: int, duration: int) -> int:
+    if len(stats.requests) is 0:
         return
 
-    diff = 0
-
-    if q[-1].time + duration < timestamp:
-        q.clear()
+    if stats.requests[-1].time + duration < timestamp:
+        stats.requests.clear()
         return
 
-    while len(q) is not 0 and q[0].time + duration < timestamp:
-        request = q.popleft()
-        diff = request.count - diff
+    while len(stats.requests) is not 0 and stats.requests[0].time + duration < timestamp:
+        request = stats.requests.popleft()
+        stats.total_count -= request.count
 
-        if len(q) is not 0:
-            q[-1].count -= diff
-
-def is_request_allowed(q: Deque[Request], limit: int) -> bool:
-    if len(q) is not 0 and q[-1].count == limit:
+def is_request_allowed(stats: Stats, limit: int) -> bool:
+    if len(stats.requests) is not 0 and stats.total_count == limit:
         return False
 
     return True
 
-def add_request(q: Deque[Request], timestamp: int) -> None:
-    if len(q) is 0:
-        q.append(Request(timestamp, 1))
-        return
+def add_request(stats: Stats, timestamp: int) -> None:
+    stats.total_count += 1
 
-    if q[-1].time == timestamp:
-        q[-1].count += 1
-    else: 
-        q.append(Request(timestamp, q[-1].count + 1))
+    if len(stats.requests) > 0 and stats.requests[-1].time == timestamp:
+        stats.requests[-1].count += 1
+    else:
+        stats.requests.append(Request(timestamp, 1))
 
 fin = open('input.txt')
 user_limit, service_limit, duration = map(int, fin.readline().split())
 s = [None]
-requests_by_users = {}
-requests_by_service = deque()
+users_stats_map = {}
+service_stats = Stats()
 
 while True:
     s = fin.readline().split()
@@ -64,30 +60,31 @@ while True:
 
     timestamp, user_id = map(int, s)
 
-    collapse_queue(requests_by_service, timestamp, duration)
+    collapse_queue(service_stats, timestamp, duration)
 
-    if requests_by_users.get(user_id) is not None:
-        if not is_request_allowed(requests_by_users[user_id], user_limit):
-            print(timestamp, 400, requests_by_service, requests_by_users)
+    if users_stats_map.get(user_id) is not None:
+        if not is_request_allowed(users_stats_map[user_id], user_limit):
+            print(timestamp, 400, service_stats, users_stats_map)
+            continue
 
-    if not is_request_allowed(requests_by_service, service_limit):
-        print(timestamp, 500, requests_by_service, requests_by_users)
+    if not is_request_allowed(service_stats, service_limit):
+        print(timestamp, 500, service_stats, users_stats_map)
         continue
 
-    if requests_by_users.get(user_id) is None:
-        requests_by_users[user_id] = deque()
+    if users_stats_map.get(user_id) is None:
+        users_stats_map[user_id] = Stats()
 
-    user_q = requests_by_users[user_id]
+    user_stats = users_stats_map[user_id]
 
-    collapse_queue(user_q, timestamp, duration)
+    collapse_queue(user_stats, timestamp, duration)
 
-    if not is_request_allowed(user_q, user_limit):
-        print(timestamp, 400, requests_by_service, requests_by_users)
+    if not is_request_allowed(user_stats, user_limit):
+        print(timestamp, 400, service_stats, users_stats_map)
         continue
 
-    add_request(user_q, timestamp)
-    add_request(requests_by_service, timestamp)
-    print(timestamp, 200, requests_by_service, requests_by_users)
+    add_request(user_stats, timestamp)
+    add_request(service_stats, timestamp)
+    print(timestamp, 200, service_stats, users_stats_map)
 
 fin.close()
 
@@ -141,7 +138,6 @@ users:
 user_limit = 5, duration = 5
 
 [[1,3]]
-[[2,4]]
-[[3,5]]
-[[8,4]]
+[[2,1]]
+[[3,1]]
 """
