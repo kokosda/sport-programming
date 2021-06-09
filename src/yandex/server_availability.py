@@ -12,6 +12,11 @@ class Request:
     def __repr__(self) -> str:
         return f'Request(t={self.time}, count={self.count})'
 
+class RequestStats:
+    def __init__(self, timestamp: int) -> None:
+        self.requests = deque(Request(timestamp, 1))
+        self.total_count = 1
+
 def collapse_queue(q: Deque[Request], timestamp: int, duration: int) -> int:
     if len(q) is 0:
         return
@@ -61,12 +66,11 @@ while True:
 
     collapse_queue(requests_by_service, timestamp, duration)
 
-    if not is_request_allowed(requests_by_service, service_limit):
-        if requests_by_users.get(user_id) is not None:
-            if not is_request_allowed(requests_by_users[user_id], user_limit):
-                print(timestamp, 400, requests_by_service, requests_by_users)
-                continue
+    if requests_by_users.get(user_id) is not None:
+        if not is_request_allowed(requests_by_users[user_id], user_limit):
+            print(timestamp, 400, requests_by_service, requests_by_users)
 
+    if not is_request_allowed(requests_by_service, service_limit):
         print(timestamp, 500, requests_by_service, requests_by_users)
         continue
 
