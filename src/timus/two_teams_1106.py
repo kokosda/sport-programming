@@ -9,20 +9,24 @@ for i in range(1, n + 1):
 		team1.add(i)
 
 	i_friends = list(map(int, fin.readline().split()))
-	print(i_friends)
 	j = 0
 
 	while i_friends[j] != 0:
 		if i_friends[j] not in team2 and i_friends[j] not in team1:
-			team2.add(i_friends[j])
+			if i in team1:
+				team2.add(i_friends[j])
+			else:
+				team1.add(i_friends[j])
 
 		j += 1
 
-res = len(team1)
-print(res)
+members = min(len(team1), len(team2))
 
-if res > 0:
+if members > 0:
+	print(len(team1))
 	print(' '.join([str(i) for i in team1]))
+else:
+	print(0)
 
 fin.close()
 
