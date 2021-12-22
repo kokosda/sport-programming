@@ -5,7 +5,7 @@ class Constants:
 	INFINITY = 10 ** 6
 
 class Solution:
-	def run(self, g: Graph, source_vertice: int, destination_vertice: int) -> bool:
+	def run(self, g: Graph, source_vertice: int, destination_vertice: int) -> List[int]:
 		g.vertices[source_vertice].weight_upper_bound = 0
 		
 		for _ in g.vertices:
@@ -14,27 +14,38 @@ class Solution:
 				
 		for edge in g.edges:
 			if edge.vertice_2.weight_upper_bound > (edge.vertice_1.weight_upper_bound + edge.weight):
-				return False
+				return []
 
-		return True
+		result = self.__get_path__(g, destination_vertice)
+		return result
 
-	def __relax__(self, g: Graph, u: int, v: int, weight: int) -> None:
-		weight_upper_bound = u.weight_upper_bound + u.edges[v].weight
+	def __relax__(self, g: Graph, u: Vertice, v: Vertice, weight: int) -> None:
+		weight_upper_bound = u.weight_upper_bound + u.edges[v.number].weight
 
 		if v.weight_upper_bound > weight_upper_bound:
 			v.weight_upper_bound = weight_upper_bound
 			v.predecessor = u
+
+	def __get_path__(self, g: Graph, destination_vertice_number: int) -> List[int]:
+		result = [destination_vertice_number]
+		current_vertice = g.vertices[destination_vertice_number].predecessor
+
+		while current_vertice:
+			result.append(current_vertice.number)
+			current_vertice = current_vertice.predecessor
+
+		return result
 
 class Vertice:
 	def __init__(self, number: int):
 		self.number = number
 		self.weight_upper_bound = Constants.INFINITY
 		self.predecessor = None
-		self.edges = []
+		self.edges = dict()
 
 	def add_edge(self, vertice: Vertice, weight: int) -> Edge:
 		result = Edge(self, vertice, weight)
-		self.edges.append(result)
+		self.edges[vertice.number] = result
 		return result
 	
 	def __str__(self) -> str:
@@ -96,4 +107,5 @@ adjacency_matrix_str = """
 graph = Graph(adjacency_matrix_str)
 
 solution = Solution()
-solution.run(graph, 1, 5)
+path = solution.run(graph, 1, 4)
+print(path)
