@@ -10,7 +10,7 @@ class Solution:
 		
 		for _ in g.vertices:
 			for edge in g.edges:
-				self.__relax__(g, edge.vertice_1, edge.vertice_2, edge.weight)
+				self.__relax__(g, edge)
 				
 		for edge in g.edges:
 			if edge.vertice_2.weight_upper_bound > (edge.vertice_1.weight_upper_bound + edge.weight):
@@ -19,8 +19,10 @@ class Solution:
 		result = self.__get_path__(g, destination_vertice)
 		return result
 
-	def __relax__(self, g: Graph, u: Vertice, v: Vertice, weight: int) -> None:
-		weight_upper_bound = u.weight_upper_bound + u.edges[v.number].weight
+	def __relax__(self, g: Graph, edge: Edge) -> None:
+		u = edge.vertice_1
+		v = edge.vertice_2
+		weight_upper_bound = u.weight_upper_bound + edge.weight
 
 		if v.weight_upper_bound > weight_upper_bound:
 			v.weight_upper_bound = weight_upper_bound
